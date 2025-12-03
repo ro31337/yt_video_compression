@@ -2,6 +2,14 @@
 
 AI-powered tool that downloads YouTube videos and compresses them by extracting only the most valuable segments using Claude.
 
+> **Note:** This is a proof-of-concept. Prerequisites and workflow may change in the future.
+
+## Prerequisites
+
+- Videos must have subtitles (manual or auto-generated)
+- Currently optimized for Russian (`ru`) and English (`en`) subtitles
+- Works best with educational/informational content
+
 ## How it works
 
 1. **Cleanup** - Removes previous output files

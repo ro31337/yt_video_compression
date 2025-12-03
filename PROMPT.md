@@ -40,5 +40,7 @@ from_timestamp,to_timestamp,file,short_description
 
 - Keep segments that contain the core value of the video
 - Total kept content should be 50% or less of original duration
-- Prefer fewer, longer coherent segments over many tiny clips. 
+- Prefer many tiny cohesive clips that would represent the juice of the topic. No need for chit-chat or unrelated topics.
 - Ensure segments have complete thoughts (don't cut mid-sentence)
+- **CRITICAL**: If two valuable segments are back-to-back (less than 2 seconds gap), MERGE them into one segment. Never create adjacent segments that touch or nearly touch.
+- Leave at least 1-2 seconds gap between segments to avoid overlap during video cutting

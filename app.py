@@ -265,6 +265,24 @@ class CutVideoStep(PipelineStep):
     def name(self) -> str:
         return "CutVideo"
 
+    def _timestamp_to_seconds(self, ts: str) -> float:
+        """Convert HH:MM:SS or HH:MM:SS.mmm to seconds."""
+        parts = ts.split(":")
+        h, m, s = int(parts[0]), int(parts[1]), float(parts[2])
+        return h * 3600 + m * 60 + s
+
+    def _seconds_to_timestamp(self, secs: float) -> str:
+        """Convert seconds to HH:MM:SS.mmm format."""
+        h = int(secs // 3600)
+        m = int((secs % 3600) // 60)
+        s = secs % 60
+        return f"{h:02d}:{m:02d}:{s:06.3f}"
+
+    def _calc_duration(self, from_ts: str, to_ts: str) -> str:
+        """Calculate duration between two timestamps."""
+        duration = self._timestamp_to_seconds(to_ts) - self._timestamp_to_seconds(from_ts)
+        return self._seconds_to_timestamp(duration)
+
     def execute(self) -> StepResult:
         """Cut video into chunks and merge them."""
         import csv
@@ -295,12 +313,14 @@ class CutVideoStep(PipelineStep):
             chunk_path = self.data_dir / seg["file"]
             chunk_files.append(chunk_path)
 
+            duration = self._calc_duration(seg["from"], seg["to"])
             cmd = [
                 "ffmpeg", "-y",
-                "-i", str(self.video_path),
                 "-ss", seg["from"],
-                "-to", seg["to"],
+                "-i", str(self.video_path),
+                "-t", duration,
                 "-c", "copy",
+                "-avoid_negative_ts", "make_zero",
                 str(chunk_path)
             ]
 

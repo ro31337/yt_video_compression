@@ -9,6 +9,8 @@ AI-powered tool that downloads YouTube videos and compresses them by extracting 
 - Videos must have subtitles (manual or auto-generated)
 - Currently optimized for Russian (`ru`) and English (`en`) subtitles
 - Works best with educational/informational content
+- [ffmpeg](https://ffmpeg.org/) installed
+- [Claude Code CLI](https://github.com/anthropics/claude-code) installed and configured
 
 ## How it works
 

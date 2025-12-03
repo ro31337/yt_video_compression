@@ -20,7 +20,7 @@ AI-powered tool that downloads YouTube videos and compresses them by extracting 
 
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/yt_video_compression.git
+git clone https://github.com/ro31337/yt_video_compression.git
 cd yt_video_compression
 
 # Install dependencies

@@ -52,3 +52,14 @@ from_timestamp,to_timestamp,file,short_description
 00:00:45,00:02:30,0001.mp4,"introduction to main concept"
 00:03:15,00:05:40,0002.mp4,"key insight about performance"
 ```
+
+## Troubleshooting
+
+If you encounter issues with subtitle downloads or other problems, run the diagnostic script:
+
+```bash
+uv run python diagnose.py
+```
+
+When reporting bugs, please include the full output of the diagnostic script in your issue:
+https://github.com/ro31337/yt_video_compression/issues

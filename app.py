@@ -61,7 +61,8 @@ class DownloadStep(PipelineStep):
     """Step for downloading video and subtitles using yt-dlp."""
 
     def __init__(self, url: str, output_dir: Path, subtitle_langs: list[str] | None = None):
-        self.url = url
+        # Strip backslashes that shell escaping may add
+        self.url = url.replace("\\", "")
         self.output_dir = output_dir
         self.subtitle_langs = subtitle_langs or ["ru", "en"]
         self.video_path = output_dir / "video.mp4"

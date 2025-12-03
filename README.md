@@ -1,6 +1,6 @@
 # YouTube Video Compression
 
-AI-powered tool that downloads YouTube videos and compresses them by extracting only the most valuable segments using Claude.
+AI-powered tool that downloads YouTube videos and compresses them by extracting only the most valuable segments using Claude. Fast: no re-encoding, just cutting and merging. ~1-2 min for a 30-min video on Mac.
 
 > **Note:** This is a proof-of-concept. Prerequisites and workflow may change in the future.
 

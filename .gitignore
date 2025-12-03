@@ -10,7 +10,8 @@ wheels/
 .venv
 
 # Output data
-data/
+data/*
+!data/.keep
 
 # macOS
 .DS_Store

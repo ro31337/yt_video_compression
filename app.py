@@ -253,6 +253,75 @@ class CompressAnalysisStep(PipelineStep):
             )
 
 
+def timestamp_to_seconds(ts: str) -> float:
+    """Convert HH:MM:SS or HH:MM:SS.mmm to seconds."""
+    parts = ts.split(":")
+    h, m, s = int(parts[0]), int(parts[1]), float(parts[2])
+    return h * 3600 + m * 60 + s
+
+
+class NormalizeCSVStep(PipelineStep):
+    """Step for normalizing CSV by merging adjacent segments within 3 seconds."""
+
+    def __init__(self, data_dir: Path, gap_threshold: float = 3.0):
+        self.data_dir = data_dir
+        self.csv_path = data_dir / "video.csv"
+        self.gap_threshold = gap_threshold
+
+    @property
+    def name(self) -> str:
+        return "NormalizeCSV"
+
+    def execute(self) -> StepResult:
+        """Merge adjacent segments if gap between them is <= threshold."""
+        import csv
+
+        if not self.csv_path.exists():
+            return StepResult(success=False, message="video.csv not found")
+
+        # Read segments
+        segments = []
+        with open(self.csv_path, newline="") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                segments.append({
+                    "from": row["from_timestamp"],
+                    "to": row["to_timestamp"],
+                    "desc": row.get("short_description", ""),
+                })
+
+        if not segments:
+            return StepResult(success=False, message="No segments in CSV")
+
+        # Merge adjacent segments within threshold
+        merged = [segments[0]]
+        for seg in segments[1:]:
+            prev = merged[-1]
+            prev_end = timestamp_to_seconds(prev["to"])
+            curr_start = timestamp_to_seconds(seg["from"])
+            gap = curr_start - prev_end
+
+            if gap <= self.gap_threshold:
+                # Merge: extend previous segment to current's end
+                prev["to"] = seg["to"]
+                prev["desc"] = f"{prev['desc']}; {seg['desc']}"
+            else:
+                merged.append(seg)
+
+        # Write back with renumbered files
+        with open(self.csv_path, "w", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerow(["from_timestamp", "to_timestamp", "file", "short_description"])
+            for i, seg in enumerate(merged, 1):
+                writer.writerow([seg["from"], seg["to"], f"{i:04d}.mp4", seg["desc"]])
+
+        merged_count = len(segments) - len(merged)
+        return StepResult(
+            success=True,
+            message=f"Normalized: {len(segments)} -> {len(merged)} segments ({merged_count} merged)"
+        )
+
+
 class CutVideoStep(PipelineStep):
     """Step for cutting video into chunks and merging based on CSV."""
 
@@ -266,23 +335,13 @@ class CutVideoStep(PipelineStep):
     def name(self) -> str:
         return "CutVideo"
 
-    def _timestamp_to_seconds(self, ts: str) -> float:
-        """Convert HH:MM:SS or HH:MM:SS.mmm to seconds."""
-        parts = ts.split(":")
-        h, m, s = int(parts[0]), int(parts[1]), float(parts[2])
-        return h * 3600 + m * 60 + s
-
-    def _seconds_to_timestamp(self, secs: float) -> str:
-        """Convert seconds to HH:MM:SS.mmm format."""
-        h = int(secs // 3600)
-        m = int((secs % 3600) // 60)
-        s = secs % 60
-        return f"{h:02d}:{m:02d}:{s:06.3f}"
-
     def _calc_duration(self, from_ts: str, to_ts: str) -> str:
         """Calculate duration between two timestamps."""
-        duration = self._timestamp_to_seconds(to_ts) - self._timestamp_to_seconds(from_ts)
-        return self._seconds_to_timestamp(duration)
+        duration = timestamp_to_seconds(to_ts) - timestamp_to_seconds(from_ts)
+        h = int(duration // 3600)
+        m = int((duration % 3600) // 60)
+        s = duration % 60
+        return f"{h:02d}:{m:02d}:{s:06.3f}"
 
     def execute(self) -> StepResult:
         """Cut video into chunks and merge them."""
@@ -408,6 +467,7 @@ def main():
     pipeline.add_step(CleanupStep(output_dir))
     pipeline.add_step(DownloadStep(url, output_dir, subtitle_langs=["ru", "en"]))
     pipeline.add_step(CompressAnalysisStep(output_dir, prompt_file))
+    pipeline.add_step(NormalizeCSVStep(output_dir))
     pipeline.add_step(CutVideoStep(output_dir))
 
     success = pipeline.run()

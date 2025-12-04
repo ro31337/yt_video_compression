@@ -33,7 +33,7 @@ Time format: `HH:MM:SS` (always include hours, e.g. `00:01:30`)
 
 ## Critical Rules
 
-1. **Target: 50% or less of original.** If video is 20 min — result is 10 min max.
+1. **Target: 30% or less of original.** If video is 20 min — result is 6-7 min max.
 
 2. **Merge adjacent segments.** If gap between two valuable parts is less than 3 seconds — make ONE segment. Never create segments that touch or nearly touch.
 
@@ -41,6 +41,7 @@ Time format: `HH:MM:SS` (always include hours, e.g. `00:01:30`)
    - Segment 1: `00:01:00` → `00:01:30`
    - Segment 2: `00:01:33` → `00:02:00` (3 sec gap — OK)
 
-4. **Fewer segments = better.** Prefer 5-10 long meaningful segments over 30 short ones.
+4. **Small segments.** Each segment should be 20-30 seconds max. Many small segments is OK — they will be merged automatically if close together.
 
 5. **Only the essence.** Each segment must contain concrete value. When in doubt — leave it out.
+
